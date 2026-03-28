@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% block title %}{{ '编辑通知渠道' if item else '新建通知渠道' }} - NotifyHub{% endblock %}
+
+{% block content %}
+<div class="page-hero hero-card">
+    <div class="flex flex-col gap-3">
+        <a href="/notifiers" class="text-sky-300 text-sm hover:underline">返回渠道列表</a>
+        <div>
+            <div class="text-xs uppercase tracking-[0.28em] text-slate-400">Notifier Editor</div>
+            <h2 class="page-title mt-2">{{ '编辑通知渠道' if item else '新建通知渠道' }}</h2>
+        </div>
+    </div>
+</div>
+
+<form method="POST" action="{{ '/notifiers/' ~ item.id ~ '/edit' if item else '/notifiers/new' }}" id="notifier-form">
+    <div class="form-card space-y-4 max-w-3xl">
+        <div>
+            <label>配置名称 *</label>
+            <input type="text" name="name" value="{{ item.name if item else '' }}" required placeholder="如: 我的 QQ 邮箱">
+        </div>
+
+        <div>
+            <label>渠道类型</label>
+            <select name="notifier_type" id="notifier-type" {% if item %}disabled{% endif %} onchange="renderConfigFields()">
+                {% for nt in notifier_types %}
+                <option value="{{ nt.type }}" {% if item and item.notifier_type == nt.type %}selected{% elif not item and loop.first %}selected{% endif %}>{{ nt.name }}</option>
+                {% endfor %}
+            </select>
+            {% if item %}<input type="hidden" name="notifier_type" value="{{ item.notifier_type }}">{% endif %}
+        </div>
+
+        <div id="config-fields" class="space-y-4 border-t border-slate-700/50 pt-4"></div>
+
+        {% if item %}
+        <label class="flex items-center gap-3 mb-0 cursor-pointer">
+            <input type="checkbox" name="is_active" id="is_active" value="true" {% if item.is_active %}checked{% endif %} class="w-4 h-4">
+            <span class="text-sm text-slate-200">启用</span>
+        </label>
+        {% endif %}
+
+        {% if user.is_admin %}
+        <div class="border-t border-slate-700/50 pt-4">
+            <label class="flex items-center gap-3 mb-0 cursor-pointer">
+                <input type="checkbox" name="is_shared" id="is_shared" value="true" {% if item and item.is_shared %}checked{% endif %} class="w-4 h-4">
+                <span class="text-sm text-slate-200">共享给用户（用户仅可自定义收件人）</span>
+            </label>
+            {% if item and item.is_shared %}
+            <div class="rounded-2xl border border-sky-400/20 bg-sky-400/10 p-3 mt-3 text-sm text-slate-200">
+                当前渠道已开启共享，可前往共享管理调整可访问用户范围。
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4 max-w-3xl">
+        <button type="submit" class="btn btn-primary">{{ '保存修改' if item else '创建渠道' }}</button>
+        {% if item %}<button type="button" id="test-btn" onclick="testNotifier()" class="btn btn-ghost">发送测试</button>{% endif %}
+        <a href="/notifiers" class="btn btn-secondary">取消</a>
+    </div>
+</form>
+
+<div id="test-result" class="max-w-3xl mt-4 hidden"></div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+const notifierSchemas = {{ notifier_types | tojson }};
+const configValues = {{ config_values | tojson }};
+
+function renderConfigFields() {
+    const type = document.querySelector('#notifier-type').value || document.querySelector('input[name="notifier_type"]')?.value;
+    const container = document.getElementById('config-fields');
+    const schema = notifierSchemas.find(s => s.type === type);
+    if (!schema) { container.innerHTML = ''; return; }
+
+    let html = '';
+    for (const [key, field] of Object.entries(schema.schema)) {
+        const val = configValues[key] !== undefined ? configValues[key] : (field.default || '');
+        if (field.type === 'checkbox') {
+            const checked = val === true || val === 'true' || val === 'True' || val === '1' || val === 'on';
+            html += `<label class="flex items-center gap-3 mb-0 cursor-pointer"><input type="checkbox" name="config_${key}" id="cfg_${key}" ${checked ? 'checked' : ''} class="w-4 h-4"><span class="text-sm text-slate-200">${field.label}</span></label>`;
+        } else {
+            const inputType = field.type === 'password' ? 'password' : (field.type === 'number' ? 'number' : 'text');
+            html += `<div><label>${field.label} ${field.required ? '*' : ''}</label><input type="${inputType}" name="config_${key}" value="${String(val).replace(/"/g, '&quot;')}" ${field.required ? 'required' : ''} placeholder="${field.placeholder || ''}"></div>`;
+        }
+    }
+    container.innerHTML = html;
+}
+renderConfigFields();
+
+{% if item %}
+async function testNotifier() {
+    const btn = document.getElementById('test-btn');
+    const resultDiv = document.getElementById('test-result');
+    btn.disabled = true;
+    btn.textContent = '发送中...';
+    resultDiv.classList.add('hidden');
+    try {
+        const resp = await fetch('/notifiers/{{ item.id }}/test', { method: 'POST', headers: {'Content-Type': 'application/json'} });
+        const data = await resp.json();
+        resultDiv.classList.remove('hidden');
+        resultDiv.className = 'max-w-3xl mt-4 form-card';
+        resultDiv.innerHTML = `<div class="text-sm ${data.ok ? 'text-emerald-300' : 'text-rose-300'}">${data.msg || (data.ok ? '测试发送成功' : '测试发送失败')}</div>`;
+    } catch(e) {
+        resultDiv.classList.remove('hidden');
+        resultDiv.className = 'max-w-3xl mt-4 form-card';
+        resultDiv.innerHTML = `<div class="text-sm text-rose-300">测试请求失败：${e.message}</div>`;
+    } finally {
+        btn.disabled = false;
+        btn.textContent = '发送测试';
+    }
+}
+{% endif %}
+</script>
+{% endblock %}

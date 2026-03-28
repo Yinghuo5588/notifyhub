@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}通知模板 - NotifyHub{% endblock %}
+
+{% block content %}
+<div class="page-hero hero-card">
+    <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
+        <div>
+            <div class="text-xs uppercase tracking-[0.28em] text-slate-400">Templates</div>
+            <h2 class="page-title mt-2">通知模板</h2>
+            <p class="page-subtitle">使用 Jinja2 语法自定义通知内容格式。模板写得好，通知都像经过打磨，不像野生报错短信。</p>
+        </div>
+        <div class="flex flex-col sm:flex-row gap-2">
+            {% if not user.is_admin %}
+            <a href="/templates/shared" class="btn btn-ghost sm:w-auto">共享模板</a>
+            {% endif %}
+            <a href="/templates/new" class="btn btn-primary sm:w-auto">新建模板</a>
+        </div>
+    </div>
+</div>
+
+{% if items %}
+<div class="data-list">
+    {% for item in items %}
+    <div class="list-card">
+        <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+            <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 flex-wrap">
+                    <h3 class="text-lg font-semibold text-slate-100">{{ item.name }}</h3>
+                    {% if item.is_shared %}
+                    <span class="badge badge-purple">共享</span>
+                    {% endif %}
+                </div>
+                {% if item.description %}<p class="muted-text text-sm mt-1">{{ item.description }}</p>{% endif %}
+                <div class="text-xs text-slate-400 mt-2">
+                    格式：{{ item.body_format }} · 更新：{{ item.updated_at.strftime('%Y-%m-%d %H:%M') if item.updated_at else '' }}
+                </div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:flex gap-2 shrink-0">
+                {% if item.is_shared and user.is_admin %}
+                <a href="/admin/templates/{{ item.id }}/share" class="btn btn-ghost">共享管理</a>
+                {% endif %}
+                <a href="/templates/{{ item.id }}/edit" class="btn btn-secondary">编辑</a>
+                <form method="POST" action="/templates/{{ item.id }}/delete" onsubmit="return confirm('确定删除此模板？')">
+                    <button class="btn btn-danger">删除</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state form-card">
+    <div class="text-lg font-semibold" style="color:var(--text)">还没有模板</div>
+    <p class="page-subtitle">先做一个好模板，后面的通知才会看起来像作品，不像事故现场。</p>
+    <a href="/templates/new" class="btn btn-primary sm:w-auto mt-3">创建第一个模板</a>
+</div>
+{% endif %}
+{% endblock %}

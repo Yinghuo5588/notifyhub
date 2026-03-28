@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+{% block title %}配置订阅 - NotifyHub{% endblock %}
+
+{% block content %}
+<div class="page-hero hero-card">
+    <div class="flex flex-col gap-3">
+        <a href="/subscriptions" class="text-sky-300 text-sm hover:underline">返回订阅列表</a>
+        <div>
+            <div class="text-xs uppercase tracking-[0.28em] text-slate-400">Subscription Config</div>
+            <h2 class="page-title mt-2">配置订阅 — {{ sub.channel.name if sub.channel else '' }}</h2>
+            {% if sub.channel and sub.channel.description %}<p class="page-subtitle">{{ sub.channel.description }}</p>{% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+    <div class="lg:col-span-2">
+        <form method="POST" action="/subscriptions/{{ sub.id }}/edit">
+            <div class="form-card space-y-4">
+                <div>
+                    <label>通知模板</label>
+                    <select name="template_id">
+                        <option value="">请选择模板</option>
+                        {% if my_templates %}
+                        <optgroup label="我的模板">
+                            {% for t in my_templates %}
+                            <option value="{{ t.id }}" {% if sub.template_id == t.id %}selected{% endif %}>{{ t.name }}</option>
+                            {% endfor %}
+                        </optgroup>
+                        {% endif %}
+                        {% if shared_templates %}
+                        <optgroup label="共享模板（仅标题可见）">
+                            {% for t in shared_templates %}
+                            <option value="{{ t.id }}" {% if sub.template_id == t.id %}selected{% endif %}>{{ t.name }}{% if t.description %} — {{ t.description }}{% endif %}</option>
+                            {% endfor %}
+                        </optgroup>
+                        {% endif %}
+                    </select>
+                    <div class="flex flex-wrap gap-3 mt-2 text-xs">
+                        <a href="/templates/new" class="text-sky-300 hover:underline inline-block">去新建模板</a>
+                        {% if shared_templates %}
+                        <a href="/templates/shared" class="text-sky-300 hover:underline inline-block">查看共享模板</a>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div>
+                    <label>通知方式</label>
+                    <select name="notifier_config_id" id="notifier-select" onchange="toggleRecipients()">
+                        <option value="">请选择</option>
+                        {% if my_notifiers %}
+                        <optgroup label="我的通知渠道">
+                            {% for n in my_notifiers %}
+                            <option value="{{ n.id }}" data-shared="false" {% if sub.notifier_config_id == n.id %}selected{% endif %}>{{ n.name }} ({{ n.notifier_type }})</option>
+                            {% endfor %}
+                        </optgroup>
+                        {% endif %}
+                        {% if shared_notifiers %}
+                        <optgroup label="共享通知渠道">
+                            {% for n in shared_notifiers %}
+                            <option value="{{ n.id }}" data-shared="true" {% if sub.notifier_config_id == n.id %}selected{% endif %}>{{ n.name }} (共享 · {{ n.notifier_type }})</option>
+                            {% endfor %}
+                        </optgroup>
+                        {% endif %}
+                    </select>
+                </div>
+
+                <div id="recipients-box" style="display:none">
+                    <label>收件邮箱 *（使用共享渠道时必填）</label>
+                    <input type="text" name="custom_recipients" value="{{ sub.custom_recipients }}" placeholder="your@email.com（多个用逗号分隔）">
+                </div>
+
+                <label class="flex items-center gap-3 mb-0 cursor-pointer">
+                    <input type="checkbox" name="is_active" id="is_active" value="true" {% if sub.is_active %}checked{% endif %} class="w-4 h-4">
+                    <span class="text-sm text-slate-200">启用此订阅</span>
+                </label>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
+                <button type="submit" class="btn btn-primary">保存</button>
+                <a href="/subscriptions" class="btn btn-secondary">取消</a>
+            </div>
+        </form>
+
+        <div class="form-card mt-4">
+            <h3 class="text-lg font-semibold text-slate-100 mb-4">过滤规则</h3>
+            <p class="helper-text text-xs mb-4">白名单：必须匹配才发送；黑名单：匹配则不发送。</p>
+
+            {% if filter_rules %}
+            <div class="data-list mb-4">
+                {% for rule in filter_rules %}
+                <div class="list-row {% if rule.mode == 'whitelist' %}border-green-400/20 bg-green-500/10{% else %}border-rose-400/20 bg-rose-500/10{% endif %}">
+                    <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                        <div class="flex-1 text-sm">
+                            <span class="font-medium {% if rule.mode == 'whitelist' %}text-green-300{% else %}text-rose-300{% endif %}">{{ '白名单' if rule.mode == 'whitelist' else '黑名单' }}</span>
+                            <span class="text-slate-500 mx-1">|</span>
+                            <span class="text-slate-300">{{ rule.match_type }}</span>
+                            {% if rule.field_path %}<span class="text-slate-500 mx-1">|</span><span class="font-mono text-xs text-slate-400">{{ rule.field_path }}</span>{% endif %}
+                            <span class="text-slate-500 mx-1">|</span>
+                            <code class="bg-black/20 px-2 py-1 rounded-lg text-xs">{{ rule.pattern }}</code>
+                            {% if not rule.is_active %}<span class="text-amber-300 ml-1">[已禁用]</span>{% endif %}
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 shrink-0">
+                            <form method="POST" action="/subscriptions/filters/{{ rule.id }}/toggle" class="inline"><button class="btn btn-secondary">{{ '禁用' if rule.is_active else '启用' }}</button></form>
+                            <form method="POST" action="/subscriptions/filters/{{ rule.id }}/delete" class="inline" onsubmit="return confirm('确定删除？')"><button class="btn btn-danger">删除</button></form>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <form method="POST" action="/subscriptions/filters/add" class="rounded-2xl border border-dashed border-slate-600 p-4">
+                <input type="hidden" name="subscription_id" value="{{ sub.id }}">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+                    <div><label>规则名称</label><input type="text" name="name" placeholder="可选"></div>
+                    <div><label>字段路径</label><input type="text" name="field_path" placeholder="空=全文"></div>
+                    <div><label>匹配方式</label><select name="match_type"><option value="keyword">关键字</option><option value="regex">正则</option></select></div>
+                    <div><label>模式</label><select name="mode"><option value="whitelist">白名单</option><option value="blacklist">黑名单</option></select></div>
+                    <div>
+                        <label>匹配内容 *</label>
+                        <div class="flex flex-col sm:flex-row gap-2">
+                            <input type="text" name="pattern" required>
+                            <button type="submit" class="btn btn-primary sm:w-auto">添加</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="space-y-4">
+        <div class="form-card">
+            <h3 class="text-lg font-semibold text-slate-100 mb-4">订阅状态</h3>
+            <div class="space-y-2 text-sm text-slate-300">
+                <div class="flex justify-between"><span class="text-slate-400">今日已发送</span><span class="font-medium text-slate-100">{{ sub.sends_today }} / {{ sub.channel.per_day_limit if sub.channel else '?' }}</span></div>
+                <div class="flex justify-between"><span class="text-slate-400">本小时</span><span class="font-medium text-slate-100">{{ sub.sends_this_hour }} / {{ sub.channel.per_hour_limit if sub.channel else '?' }}</span></div>
+                <div class="flex justify-between"><span class="text-slate-400">发送间隔</span><span class="font-medium text-slate-100">至少 {{ sub.channel.min_interval if sub.channel else '?' }} 秒</span></div>
+            </div>
+        </div>
+
+        <div class="form-card">
+            <h3 class="text-lg font-semibold text-slate-100 mb-4">使用提示</h3>
+            <ul class="space-y-2 text-sm text-sky-200">
+                <li>你可以选择自己的模板，也可以直接引用管理员共享模板</li>
+                <li>共享模板在这里仅显示标题/简介，不展示正文源码</li>
+                <li>选择共享通知渠道时需要填写收件邮箱</li>
+                <li>过滤规则可精确控制接收哪些通知</li>
+                <li>配置完成后记得勾选“启用”</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function toggleRecipients() {
+    const sel = document.getElementById('notifier-select');
+    const box = document.getElementById('recipients-box');
+    const opt = sel.options[sel.selectedIndex];
+    if (opt && opt.dataset.shared === 'true') {
+        box.style.display = 'block';
+    } else {
+        box.style.display = 'none';
+    }
+}
+toggleRecipients();
+</script>
+{% endblock %}

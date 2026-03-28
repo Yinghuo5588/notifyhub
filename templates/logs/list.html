@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}Webhook 请求日志 - NotifyHub{% endblock %}
+
+{% block content %}
+<div class="page-hero hero-card">
+    <div>
+        <div class="text-xs uppercase tracking-[0.28em] text-slate-400">Webhook Logs</div>
+        <h2 class="page-title mt-2">Webhook 请求日志</h2>
+        <p class="page-subtitle">共 {{ total }} 条原始请求记录。谁发来的、有没有通过过滤，一眼就能看出来。</p>
+    </div>
+</div>
+
+<div class="form-card mb-4">
+    <form method="GET" action="/logs" class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <select name="channel_id">
+            <option value="">全部频道</option>
+            {% for ch in channels %}
+            <option value="{{ ch.id }}" {% if channel_id|string == ch.id|string %}selected{% endif %}>{{ ch.name }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-primary">筛选</button>
+        {% if channel_id %}
+        <a href="/logs" class="btn btn-secondary">清除筛选</a>
+        {% endif %}
+    </form>
+</div>
+
+{% if items %}
+<div class="data-list">
+    {% for item in items %}
+    <a href="/logs/{{ item.id }}" class="list-card block hover:border-sky-400/30 transition">
+        <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+            <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 text-sm flex-wrap">
+                    <span class="font-mono text-xs text-slate-400 truncate">{{ item.content_type[:40] }}</span>
+                    <span class="badge {% if item.filter_passed %}badge-green{% else %}badge-yellow{% endif %}">{{ '通过' if item.filter_passed else '过滤' }}</span>
+                </div>
+                <div class="flex flex-wrap gap-x-3 mt-2 text-xs text-slate-400">
+                    <span>IP: {{ item.ip_address }}</span>
+                    <span>{{ item.created_at.strftime('%Y-%m-%d %H:%M:%S') if item.created_at else '' }}</span>
+                    {% if item.filter_detail and not item.filter_passed %}<span class="text-amber-300">{{ item.filter_detail }}</span>{% endif %}
+                </div>
+            </div>
+            <span class="text-slate-500 text-sm shrink-0">查看详情</span>
+        </div>
+    </a>
+    {% endfor %}
+</div>
+
+{% if total_pages > 1 %}
+<div class="flex flex-wrap justify-center mt-6 gap-2">
+    {% if page > 1 %}
+    <a href="/logs?page={{ page - 1 }}&channel_id={{ channel_id }}" class="btn btn-secondary sm:w-auto">上一页</a>
+    {% endif %}
+    {% for p in range(1, total_pages + 1) %}
+        {% if p == page %}
+        <span class="btn btn-primary sm:w-auto">{{ p }}</span>
+        {% elif p <= 3 or p >= total_pages - 2 or (p >= page - 1 and p <= page + 1) %}
+        <a href="/logs?page={{ p }}&channel_id={{ channel_id }}" class="btn btn-secondary sm:w-auto">{{ p }}</a>
+        {% elif p == 4 or p == total_pages - 3 %}
+        <span class="px-2 py-3 text-sm text-slate-500">...</span>
+        {% endif %}
+    {% endfor %}
+    {% if page < total_pages %}
+    <a href="/logs?page={{ page + 1 }}&channel_id={{ channel_id }}" class="btn btn-secondary sm:w-auto">下一页</a>
+    {% endif %}
+</div>
+{% endif %}
+{% else %}
+<div class="empty-state form-card">
+    <div class="text-lg font-semibold" style="color:var(--text)">还没有请求日志</div>
+    <p class="page-subtitle">等第一条 Webhook 打进来，这里就会开始有故事。</p>
+</div>
+{% endif %}
+{% endblock %}

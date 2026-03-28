@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  notifyhub:
+    build: .
+    container_name: notifyhub
+    ports:
+      - "9800:9800"
+    volumes:
+      - ./data:/app/data
+      - ./.env:/app/.env:ro
+    environment:
+      - TZ=Asia/Shanghai
+    restart: unless-stopped

@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Webhook 频道 - NotifyHub{% endblock %}
+
+{% block content %}
+<div class="page-hero hero-card">
+    <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
+        <div>
+            <div class="text-xs uppercase tracking-[0.28em] text-slate-400">Channels</div>
+            <h2 class="page-title mt-2">Webhook 频道</h2>
+            <p class="page-subtitle">每个频道对应一个独立 Webhook 接收地址。移动端也能顺手管理，不再一边缩放一边皱眉。</p>
+        </div>
+        <a href="/channels/new" class="btn btn-primary sm:w-auto">新建频道</a>
+    </div>
+</div>
+
+{% if channels %}
+<div class="data-list">
+    {% for ch in channels %}
+    <div class="list-card">
+        <div class="flex flex-col gap-4">
+            <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <h3 class="text-lg font-semibold text-slate-100">{{ ch.name }}</h3>
+                        <span class="badge {% if ch.is_active %}badge-green{% else %}badge-gray{% endif %}">{{ '启用' if ch.is_active else '禁用' }}</span>
+                        {% if ch.is_shared %}
+                        <span class="badge badge-blue">共享</span>
+                        {% endif %}
+                    </div>
+                    {% if ch.description %}
+                    <p class="muted-text text-sm mt-2">{{ ch.description }}</p>
+                    {% endif %}
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:flex gap-2 shrink-0">
+                    {% if ch.is_shared and user.is_admin %}
+                    <a href="/admin/channels/{{ ch.id }}/share" class="btn btn-ghost">共享管理</a>
+                    {% endif %}
+                    <a href="/channels/{{ ch.id }}/edit" class="btn btn-secondary">编辑</a>
+                    <form method="POST" action="/channels/{{ ch.id }}/delete" onsubmit="return confirm('确定删除此频道？所有关联的订阅也会被删除！')">
+                        <button class="btn btn-danger">删除</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state form-card">
+    <div class="text-lg font-semibold" style="color:var(--text)">还没有频道</div>
+    <p class="page-subtitle">先建一个 Webhook 入口，让消息有地方落地。</p>
+    <a href="/channels/new" class="btn btn-primary sm:w-auto mt-3">创建第一个频道</a>
+</div>
+{% endif %}
+{% endblock %}
