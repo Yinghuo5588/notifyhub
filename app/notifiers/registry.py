@@ -1,6 +1,7 @@
 """通知器注册表 —— 管理所有可用的通知渠道类型"""
 from app.notifiers.base import BaseNotifier
 from app.notifiers.email_notifier import EmailNotifier
+from app.notifiers.feishu_notifier import FeishuNotifier
 
 # 所有已注册的通知器实例
 _registry: dict[str, BaseNotifier] = {}
@@ -14,6 +15,7 @@ def _register(notifier_cls):
 
 # 注册所有通知器
 _register(EmailNotifier)
+_register(FeishuNotifier)
 # 未来扩展在这里添加:
 # _register(BarkNotifier)
 # _register(TelegramNotifier)
