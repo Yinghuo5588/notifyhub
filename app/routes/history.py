@@ -23,16 +23,21 @@ async def history_list(
     request: Request,
     page: int = Query(1, ge=1),
     status: str = Query(""),
-    channel_id: int = Query(None),
+    channel_id: str = Query("", alias="channel_id"),
     keyword: str = Query(""),
     db: AsyncSession = Depends(get_db),
     user: User = Depends(get_current_user),
 ):
+    try:
+        channel_id_int = int(channel_id) if channel_id else None
+    except ValueError:
+        channel_id_int = None
+
     base_filter = NotificationLog.user_id == user.id
     if status:
         base_filter = base_filter & (NotificationLog.status == status)
-    if channel_id:
-        base_filter = base_filter & (NotificationLog.channel_id == channel_id)
+    if channel_id_int:
+        base_filter = base_filter & (NotificationLog.channel_id == channel_id_int)
     if keyword:
         base_filter = base_filter & (
             NotificationLog.subject.ilike(f"%{keyword}%") |
