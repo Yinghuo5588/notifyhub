@@ -58,10 +58,13 @@ async def change_password(
 @router.post("/profile")
 async def update_profile(
     request: Request,
+    username: str = Form(""),
     email: str = Form(""),
     db: AsyncSession = Depends(get_db),
     user: User = Depends(get_current_user),
 ):
+    if username.strip():
+        user.username = username.strip()
     user.email = email
     await db.commit()
     return RedirectResponse("/settings?msg=资料已更新&msg_type=success", status_code=303)
