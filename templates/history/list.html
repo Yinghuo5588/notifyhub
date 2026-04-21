@@ -156,29 +156,39 @@
     {% endfor %}
 </div>
 
-<!-- 分页 -->
+<!-- 分页（紧凑型） -->
 {% if total_pages > 1 %}
-<div class="flex flex-wrap items-center justify-center gap-2 pb-4">
+<div class="flex items-center justify-center gap-3 pb-4 mt-2">
     {% if page > 1 %}
     <a href="/history?page={{ page-1 }}&status={{ status }}&channel_id={{ channel_id }}&keyword={{ keyword }}" 
-       class="btn btn-secondary sm:w-auto text-sm px-4 py-2">‹ 上一页</a>
+       class="btn btn-secondary text-xs px-3 py-2">‹</a>
+    {% else %}
+    <span class="btn text-xs px-3 py-2 opacity-30 cursor-default">‹</span>
     {% endif %}
 
-    {% for p in range(1, total_pages + 1) %}
-        {% if p == page %}
-        <span class="btn btn-primary sm:w-auto text-sm px-4 py-2">{{ p }}</span>
-        {% elif p <= 3 or p >= total_pages - 1 or (p >= page - 1 and p <= page + 1) %}
-        <a href="/history?page={{ p }}&status={{ status }}&channel_id={{ channel_id }}&keyword={{ keyword }}" 
-           class="btn btn-secondary sm:w-auto text-sm px-4 py-2">{{ p }}</a>
-        {% elif p == 4 or p == total_pages - 2 %}
-        <span class="px-2 text-slate-500 text-sm">…</span>
-        {% endif %}
-    {% endfor %}
+    <div class="flex items-center gap-1 text-xs text-slate-400">
+        <span class="text-slate-200 font-medium">{{ page }}</span>
+        <span>/</span>
+        <span>{{ total_pages }}</span>
+    </div>
 
     {% if page < total_pages %}
     <a href="/history?page={{ page+1 }}&status={{ status }}&channel_id={{ channel_id }}&keyword={{ keyword }}" 
-       class="btn btn-secondary sm:w-auto text-sm px-4 py-2">下一页 ›</a>
+       class="btn btn-secondary text-xs px-3 py-2">›</a>
+    {% else %}
+    <span class="btn text-xs px-3 py-2 opacity-30 cursor-default">›</span>
     {% endif %}
+
+    <!-- 页码跳转 -->
+    <form method="GET" action="/history" class="flex items-center gap-1 ml-2" onsubmit="const v=this.p.value; if(v<1||v>{{ total_pages }})return false;">
+        <input type="number" name="page" min="1" max="{{ total_pages }}" value="" 
+               placeholder="跳转" class="input text-xs py-1.5 px-2 w-16" 
+               style="background:rgba(255,255,255,0.06);border-color:rgba(255,255,255,0.1);" />
+        {% if status %}<input type="hidden" name="status" value="{{ status }}" />{% endif %}
+        {% if channel_id %}<input type="hidden" name="channel_id" value="{{ channel_id }}" />{% endif %}
+        {% if keyword %}<input type="hidden" name="keyword" value="{{ keyword }}" />{% endif %}
+        <button type="submit" class="btn btn-ghost text-xs py-1.5 px-2">跳转</button>
+    </form>
 </div>
 {% endif %}
 
