@@ -15,7 +15,7 @@ from app.notifiers.registry import get_notifier
 
 router = APIRouter(prefix="/history")
 tpl = Jinja2Templates(directory=str(TEMPLATES_DIR))
-PAGE_SIZE = 20
+PAGE_SIZE = 5
 
 
 @router.get("/", response_class=HTMLResponse)
@@ -24,24 +24,29 @@ async def history_list(
     page: int = Query(1, ge=1),
     status: str = Query(""),
     channel_id: int = Query(None),
+    keyword: str = Query(""),
     db: AsyncSession = Depends(get_db),
     user: User = Depends(get_current_user),
 ):
-    query = select(NotificationLog).where(NotificationLog.user_id == user.id)
-    count_query = select(func.count(NotificationLog.id)).where(NotificationLog.user_id == user.id)
-
+    base_filter = NotificationLog.user_id == user.id
     if status:
-        query = query.where(NotificationLog.status == status)
-        count_query = count_query.where(NotificationLog.status == status)
+        base_filter = base_filter & (NotificationLog.status == status)
     if channel_id:
-        query = query.where(NotificationLog.channel_id == channel_id)
-        count_query = count_query.where(NotificationLog.channel_id == channel_id)
+        base_filter = base_filter & (NotificationLog.channel_id == channel_id)
+    if keyword:
+        base_filter = base_filter & (
+            NotificationLog.subject.ilike(f"%{keyword}%") |
+            NotificationLog.body.ilike(f"%{keyword}%")
+        )
 
+    count_query = select(func.count(NotificationLog.id)).where(base_filter)
     total = (await db.execute(count_query)).scalar() or 0
     total_pages = max(1, (total + PAGE_SIZE - 1) // PAGE_SIZE)
 
     items = (await db.execute(
-        query.order_by(NotificationLog.created_at.desc())
+        select(NotificationLog)
+        .where(base_filter)
+        .order_by(NotificationLog.created_at.desc())
         .offset((page - 1) * PAGE_SIZE)
         .limit(PAGE_SIZE)
     )).scalars().all()
@@ -55,6 +60,7 @@ async def history_list(
         "request": request, "user": user, "items": items,
         "page": page, "total_pages": total_pages, "total": total,
         "status": status, "channel_id": channel_id or "",
+        "keyword": keyword,
         "channels": channels,
         "msg": request.query_params.get("msg", ""),
         "msg_type": request.query_params.get("msg_type", ""),
