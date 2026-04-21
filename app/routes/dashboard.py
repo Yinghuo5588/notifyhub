@@ -101,7 +101,7 @@ async def dashboard(
     trend_success = []
     trend_failed = []
     for i in range(7):
-        day_start = (today_start + timedelta(days=i)).replace(tzinfo=None)
+        day_start = (today_start - timedelta(days=6 - i)).replace(tzinfo=None)
         day_end = (day_start + timedelta(days=1))
         ok = (await db.execute(
             select(func.count(NotificationLog.id)).where(
