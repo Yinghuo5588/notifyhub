@@ -13,29 +13,40 @@ from app.models.models import User, WebhookLog, Channel
 
 router = APIRouter(prefix="/logs")
 tpl = Jinja2Templates(directory=str(TEMPLATES_DIR))
-PAGE_SIZE = 20
+PAGE_SIZE = 5
 
 
 @router.get("/", response_class=HTMLResponse)
 async def log_list(
     request: Request,
     page: int = Query(1, ge=1),
-    channel_id: int = Query(None),
+    channel_id: str = Query("", alias="channel_id"),
+    keyword: str = Query(""),
     db: AsyncSession = Depends(get_db),
     user: User = Depends(get_current_user),
 ):
-    query = select(WebhookLog).where(WebhookLog.user_id == user.id)
-    count_query = select(func.count(WebhookLog.id)).where(WebhookLog.user_id == user.id)
+    try:
+        channel_id_int = int(channel_id) if channel_id else None
+    except ValueError:
+        channel_id_int = None
 
-    if channel_id:
-        query = query.where(WebhookLog.channel_id == channel_id)
-        count_query = count_query.where(WebhookLog.channel_id == channel_id)
+    base_filter = WebhookLog.user_id == user.id
+    if channel_id_int:
+        base_filter = base_filter & (WebhookLog.channel_id == channel_id_int)
+    if keyword:
+        base_filter = base_filter & (
+            WebhookLog.request_path.ilike(f"%{keyword}%") |
+            WebhookLog.http_method.ilike(f"%{keyword}%")
+        )
 
+    count_query = select(func.count(WebhookLog.id)).where(base_filter)
     total = (await db.execute(count_query)).scalar() or 0
     total_pages = max(1, (total + PAGE_SIZE - 1) // PAGE_SIZE)
 
     items = (await db.execute(
-        query.order_by(WebhookLog.created_at.desc())
+        select(WebhookLog)
+        .where(base_filter)
+        .order_by(WebhookLog.created_at.desc())
         .offset((page - 1) * PAGE_SIZE)
         .limit(PAGE_SIZE)
     )).scalars().all()
@@ -47,7 +58,7 @@ async def log_list(
     return tpl.TemplateResponse("logs/list.html", {
         "request": request, "user": user, "items": items,
         "page": page, "total_pages": total_pages, "total": total,
-        "channel_id": channel_id or "", "channels": channels,
+        "channel_id": channel_id, "keyword": keyword, "channels": channels,
     })
 
 
@@ -65,7 +76,6 @@ async def log_detail(
     if not item:
         return RedirectResponse("/logs?msg=日志不存在&msg_type=error", status_code=303)
 
-    # 格式化JSON用于展示
     parsed = {}
     try:
         parsed = json.loads(item.parsed_data) if item.parsed_data else {}
