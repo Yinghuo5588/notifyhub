@@ -100,7 +100,7 @@ async def dashboard(
         select(NotificationLog)
         .where(NotificationLog.user_id == user.id)
         .order_by(NotificationLog.created_at.desc())
-        .limit(10)
+        .limit(5)
     )
     recent_logs = recent_result.scalars().all()
 
