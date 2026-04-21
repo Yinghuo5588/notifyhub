@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>NotifyHub UI Preview</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --bg: #f3f5f9;
+      --bg-secondary: #e9edf5;
+      --panel: rgba(255, 255, 255, 0.72);
+      --panel-strong: rgba(255, 255, 255, 0.88);
+      --panel-border: rgba(255, 255, 255, 0.58);
+      --text: #0f1728;
+      --text-soft: #344154;
+      --muted: #69778d;
+      --brand: #0a84ff;
+      --brand-strong: #0071e3;
+      --success: #30d158;
+      --danger: #ff6482;
+      --warning: #ff9f0a;
+      --shadow: 0 18px 46px rgba(22, 34, 56, 0.10);
+      --shadow-soft: 0 8px 24px rgba(22, 34, 56, 0.08);
+      --line: rgba(115, 130, 153, 0.14);
+    }
+    html[data-theme="dark"] {
+      --bg: #0f1115;
+      --bg-secondary: #171a20;
+      --panel: rgba(28, 32, 40, 0.68);
+      --panel-strong: rgba(30, 34, 42, 0.84);
+      --panel-border: rgba(255, 255, 255, 0.10);
+      --text: #f5f7fb;
+      --text-soft: #dde5f0;
+      --muted: #99a7bd;
+      --brand: #5ac8fa;
+      --brand-strong: #0a84ff;
+      --success: #32d74b;
+      --danger: #ff6482;
+      --warning: #ff9f0a;
+      --shadow: 0 22px 60px rgba(0, 0, 0, 0.34);
+      --shadow-soft: 0 10px 28px rgba(0, 0, 0, 0.24);
+      --line: rgba(255,255,255,0.10);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(90, 200, 250, 0.18), transparent 28%),
+        radial-gradient(circle at 82% 12%, rgba(10, 132, 255, 0.14), transparent 22%),
+        linear-gradient(180deg, var(--bg) 0%, var(--bg-secondary) 100%);
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    }
+    .content-wrap { width: 100%; max-width: 980px; margin: 0 auto; padding: 1rem; }
+    .glass-panel, .stat-card, .list-card, .action-card, .hero-card {
+      background: var(--panel);
+      border: 1px solid var(--panel-border);
+      backdrop-filter: blur(28px) saturate(160%);
+      -webkit-backdrop-filter: blur(28px) saturate(160%);
+      box-shadow: var(--shadow);
+    }
+    .page-hero { position: relative; overflow: hidden; border-radius: 30px; padding: 1.35rem; margin: 1rem 0; }
+    .page-title { font-size: clamp(1.7rem, 3vw, 2.6rem); line-height: 1.04; font-weight: 700; letter-spacing: -0.045em; margin: 0; }
+    .page-subtitle { margin-top: .55rem; color: var(--muted); font-size: .98rem; }
+    .dashboard-grid, .quick-grid { display: grid; gap: 1rem; }
+    .dashboard-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .quick-grid { grid-template-columns: 1fr; }
+    .stat-card, .list-card, .action-card { border-radius: 24px; padding: 1rem; }
+    .stat-value { font-size: clamp(1.7rem, 4vw, 2.15rem); font-weight: 700; letter-spacing: -0.03em; }
+    .stat-label, .muted-text { color: var(--muted); }
+    .action-card {
+      display: block; text-decoration: none; color: inherit;
+      background: linear-gradient(180deg, rgba(255,255,255,0.44), rgba(255,255,255,0.24));
+      border: 1px solid rgba(255,255,255,0.42);
+    }
+    html[data-theme="dark"] .action-card { background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02)); border-color: rgba(255,255,255,0.08); }
+    .icon-stat {
+      width: 2rem; height: 2rem; display: inline-flex; align-items: center; justify-content: center;
+      border-radius: 14px; background: rgba(10,132,255,0.08); border: 1px solid rgba(10,132,255,0.10);
+      color: rgba(10,132,255,0.72); flex: 0 0 auto;
+    }
+    .icon-stat.icon-success { color: rgba(48,209,88,0.82); }
+    .icon-stat.icon-danger { color: rgba(255,100,130,0.82); }
+    html[data-theme="dark"] .icon-stat { background: rgba(90,200,250,0.10); border-color: rgba(90,200,250,0.14); color: rgba(142,215,255,0.88); }
+    .action-icon {
+      width: 1.6rem; height: 1.6rem; display: inline-flex; align-items: center; justify-content: center;
+      border-radius: 12px; background: rgba(10,132,255,0.08); border: 1px solid rgba(10,132,255,0.10);
+      color: rgba(10,132,255,0.72); flex: 0 0 auto;
+    }
+    html[data-theme="dark"] .action-icon { background: rgba(90,200,250,0.10); border-color: rgba(90,200,250,0.14); color: rgba(142,215,255,0.88); }
+
+    html[data-theme="dark"] .icon-chip { background: rgba(90,200,250,0.10); border-color: rgba(90,200,250,0.14); color: rgba(142,215,255,0.86); }
+    .icon-chip.icon-purple { color: rgba(142,68,211,0.72); }
+    .icon-inline { display:inline-flex; align-items:center; justify-content:center; width:1rem; height:1rem; flex:0 0 auto; }
+    .icon-inline svg, .icon-stat svg, .action-icon svg, .icon-chip svg {
+      stroke: currentColor; fill: none; stroke-width: 1.85; stroke-linecap: round; stroke-linejoin: round;
+    }
+
+
+    .ios-tabbar {
+      position: fixed; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 12px); transform: translateX(-50%);
+      width: min(92vw, 420px); padding: .45rem; display:flex; align-items:center; justify-content:space-between; gap:.3rem;
+      border-radius: 28px; background: rgba(255,255,255,0.56); border:1px solid rgba(255,255,255,0.52);
+      backdrop-filter: blur(24px) saturate(160%); -webkit-backdrop-filter: blur(24px) saturate(160%);
+      box-shadow: 0 18px 40px rgba(15,23,40,.14); z-index: 80;
+    }
+    html[data-theme="dark"] .ios-tabbar { background: rgba(26,30,38,0.72); border-color: rgba(255,255,255,0.10); box-shadow:0 18px 40px rgba(0,0,0,.28); }
+    .ios-tabbar__item {
+      flex:1; min-width:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.18rem;
+      padding:.42rem .28rem; border-radius:18px; color: rgba(104,121,145,.92); text-decoration:none; transition:all .22s ease;
+      background: transparent; border:0;
+    }
+    html[data-theme="dark"] .ios-tabbar__item { color: rgba(168,181,201,.9); }
+    .ios-tabbar__item.active { color: rgba(10,132,255,.82); background: rgba(255,255,255,.46); }
+    html[data-theme="dark"] .ios-tabbar__item.active { background: rgba(255,255,255,.07); color: rgba(142,215,255,.92); }
+    .ios-tabbar__item span:last-child { font-size:.66rem; font-weight:600; white-space:nowrap; letter-spacing:-.01em; }
+
+    .ios-sheet-backdrop {
+      position:fixed; inset:0; background: rgba(15,23,40,.18); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index:85;
+    }
+    .ios-sheet {
+      position: fixed; left:50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 86px); transform: translateX(-50%);
+      width:min(92vw,420px); border-radius:28px; padding:.9rem; background: rgba(255,255,255,.72); border:1px solid rgba(255,255,255,.55);
+      backdrop-filter: blur(26px) saturate(170%); -webkit-backdrop-filter: blur(26px) saturate(170%); box-shadow:0 18px 40px rgba(15,23,40,.16); z-index:90;
+    }
+    html[data-theme="dark"] .ios-sheet { background: rgba(26,30,38,.82); border-color: rgba(255,255,255,.10); box-shadow:0 18px 40px rgba(0,0,0,.28); }
+    .ios-sheet__handle { width:42px; height:5px; margin:0 auto .75rem; border-radius:999px; background: rgba(120,132,153,.32); }
+    .ios-sheet__grid { display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:.75rem; }
+    .ios-sheet__item {
+      display:flex; align-items:center; gap:.65rem; padding:.82rem .88rem; border-radius:20px; color:var(--text); text-decoration:none;
+      background: rgba(255,255,255,.42); border:1px solid rgba(255,255,255,.46);
+    }
+    html[data-theme="dark"] .ios-sheet__item { background: rgba(255,255,255,.05); border-color: rgba(255,255,255,.08); }
+    .preview-phone-pad { padding-bottom: 110px; }
+    .hidden { display:none; }
+
+    @media (max-width: 768px) {
+      .dashboard-grid, .quick-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell preview-phone-pad">
+    <main class="w-full">
+      <div class="content-wrap max-w-3xl">
+        <div class="page-hero hero-card mt-3">
+          <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
+            <div>
+              <div class="text-xs uppercase tracking-[0.28em]" style="color:var(--muted)">Prototype</div>
+              <h2 class="page-title mt-2">iOS 风底部导航原型</h2>
+              <p class="page-subtitle">这版是内联验证版，只为了确认底部 Tab Bar 和更多面板的视觉是否终于不黑、不大、不抢戏。</p>
+            </div>
+            <div class="glass-panel rounded-2xl px-4 py-3 text-sm max-w-sm" style="color:var(--muted)">
+              <div class="font-semibold" style="color:var(--text)">验证目标</div>
+              <div class="mt-1">重点看底栏图标和更多面板图标：它们应该更小、更轻、更淡，不再像几个黑色大按钮。</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="dashboard-grid mb-4">
+          <div class="stat-card"><div class="icon-stat mb-3"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="14" rx="4"></rect><path d="M8 12h8"></path></svg></div><div class="stat-value">12</div><div class="stat-label text-sm mt-1">我的频道</div></div>
+          <div class="stat-card"><div class="icon-stat mb-3"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"></path><circle cx="9.5" cy="7" r="3"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></div><div class="stat-value">7</div><div class="stat-label text-sm mt-1">系统用户</div></div>
+          <div class="stat-card"><div class="icon-stat mb-3 icon-success"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"></path></svg></div><div class="stat-value" style="color:var(--success)">128</div><div class="stat-label text-sm mt-1">今日成功</div></div>
+          <div class="stat-card"><div class="icon-stat mb-3 icon-danger"><svg viewBox="0 0 24 24"><path d="m18 6-12 12"></path><path d="m6 6 12 12"></path></svg></div><div class="stat-value" style="color:var(--danger)">3</div><div class="stat-label text-sm mt-1">今日失败</div></div>
+        </div>
+
+        <div class="quick-grid mb-4">
+          <a href="#" class="action-card"><div class="flex items-center gap-3"><span class="action-icon"><svg viewBox="0 0 24 24"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg></span><div class="text-lg font-semibold" style="color:var(--text)">创建 Webhook 频道</div></div><p class="muted-text text-sm mt-2">看看底部导航和现有内容区是否足够和谐，不会互相抢戏。</p></a>
+          <a href="#" class="action-card"><div class="flex items-center gap-3"><span class="action-icon"><svg viewBox="0 0 24 24"><path d="M8 7h8"></path><path d="M8 12h8"></path><path d="M8 17h5"></path><rect x="4" y="4" width="16" height="16" rx="4"></rect></svg></span><div class="text-lg font-semibold" style="color:var(--text)">通知模板</div></div><p class="muted-text text-sm mt-2">如果这个方向成立，后面就把真实移动端导航整体切过去。</p></a>
+          <a href="#" class="action-card"><div class="flex items-center gap-3"><span class="action-icon"><svg viewBox="0 0 24 24"><path d="M12 8v5l3 2"></path><path d="M21 12a9 9 0 1 1-3-6.7"></path></svg></span><div class="text-lg font-semibold" style="color:var(--text)">发送历史</div></div><p class="muted-text text-sm mt-2">第三个位置先放历史，你如果更想放通知渠道也可以换。</p></a>
+        </div>
+      </div>
+    </main>
+
+    <div id="sheet-backdrop" class="ios-sheet-backdrop hidden" onclick="toggleMoreSheet(false)"></div>
+    <div id="more-sheet" class="ios-sheet hidden">
+      <div class="ios-sheet__handle"></div>
+      <div class="text-sm font-semibold mb-3 px-1" style="color:var(--text)">全部功能</div>
+      <div class="ios-sheet__grid">
+        <a href="#" class="ios-sheet__item"><span class="icon-chip"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 6-3 8h18c0-2-3-1-3-8"></path><path d="M10 20a2 2 0 0 0 4 0"></path></svg></span><span>通知渠道</span></a>
+        <a href="#" class="ios-sheet__item"><span class="icon-chip"><svg viewBox="0 0 24 24"><path d="M8 7h8"></path><path d="M8 12h8"></path><path d="M8 17h4"></path><rect x="4" y="4" width="16" height="16" rx="4"></rect></svg></span><span>请求日志</span></a>
+        <a href="#" class="ios-sheet__item"><span class="icon-chip"><svg viewBox="0 0 24 24"><path d="M12 15.5A3.5 3.5 0 1 0 12 8.5a3.5 3.5 0 0 0 0 7Z"></path><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6 1.7 1.7 0 0 0-.4 1v.2a2 2 0 1 1-4 0V21a1.7 1.7 0 0 0-.4-1 1.7 1.7 0 0 0-1-.6 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-.6-1 1.7 1.7 0 0 0-1-.4h-.2a2 2 0 1 1 0-4H3a1.7 1.7 0 0 0 1-.4 1.7 1.7 0 0 0 .6-1 1.7 1.7 0 0 0-.34-1.87l-.06-.06A2 2 0 1 1 7.03 3.44l.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-.6 1.7 1.7 0 0 0 .4-1v-.2a2 2 0 1 1 4 0V3a1.7 1.7 0 0 0 .4 1 1.7 1.7 0 0 0 1 .6 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.7 1.7 0 0 0 19.4 9c0 .38.22.74.6 1 .3.2.65.31 1 .31h.2a2 2 0 1 1 0 4H21a1.7 1.7 0 0 0-1 .4 1.7 1.7 0 0 0-.6 1Z"></path></svg></span><span>设置</span></a>
+        <a href="#" class="ios-sheet__item"><span class="icon-chip icon-purple"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"></path><circle cx="9.5" cy="7" r="3"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></span><span>用户管理</span></a>
+        <a href="#" class="ios-sheet__item"><span class="icon-chip"><svg viewBox="0 0 24 24"><path d="M12 4a6 6 0 0 0-6 6c0 4.5 6 10 6 10s6-5.5 6-10a6 6 0 0 0-6-6Z"></path><path d="M12 8v4"></path><path d="M12 15h.01"></path></svg></span><span>共享订阅</span></a>
+        <a href="#" class="ios-sheet__item"><span class="icon-chip"><svg viewBox="0 0 24 24"><path d="M8 7h8"></path><path d="M8 12h8"></path><path d="M8 17h5"></path><rect x="4" y="4" width="16" height="16" rx="4"></rect></svg></span><span>模板</span></a>
+      </div>
+    </div>
+
+    <nav class="ios-tabbar">
+      <a href="#" class="ios-tabbar__item active">
+        <span class="icon-inline"><svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"></path><path d="M5 9.5V21h14V9.5"></path></svg></span>
+        <span>首页</span>
+      </a>
+      <a href="#" class="ios-tabbar__item">
+        <span class="icon-inline"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="14" rx="4"></rect><path d="M8 12h8"></path></svg></span>
+        <span>频道</span>
+      </a>
+      <a href="#" class="ios-tabbar__item">
+        <span class="icon-inline"><svg viewBox="0 0 24 24"><path d="M12 8v5l3 2"></path><path d="M21 12a9 9 0 1 1-3-6.7"></path></svg></span>
+        <span>历史</span>
+      </a>
+      <button class="ios-tabbar__item" onclick="toggleMoreSheet()">
+        <span class="icon-inline"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.5"></circle><circle cx="12" cy="12" r="1.5"></circle><circle cx="19" cy="12" r="1.5"></circle></svg></span>
+        <span>更多</span>
+      </button>
+    </nav>
+  </div>
+
+<script>
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+}
+(function initTheme() {
+  const stored = localStorage.getItem('notifyhub-theme');
+  const preferred = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  applyTheme(stored || preferred);
+})();
+function toggleMoreSheet(force) {
+  const sheet = document.getElementById('more-sheet');
+  const backdrop = document.getElementById('sheet-backdrop');
+  const show = typeof force === 'boolean' ? force : sheet.classList.contains('hidden');
+  sheet.classList.toggle('hidden', !show);
+  backdrop.classList.toggle('hidden', !show);
+}
+</script>
+</body>
+</html>
