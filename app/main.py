@@ -1,9 +1,9 @@
 """NotifyHub 应用入口"""
 import json
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, HTTPException
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import RedirectResponse
+from fastapi.responses import RedirectResponse, JSONResponse
 from sqlalchemy import select
 
 from app.config import STATIC_DIR, DEBUG, ADMIN_USERNAME, ADMIN_PASSWORD
@@ -114,8 +114,11 @@ app = FastAPI(title="NotifyHub", lifespan=lifespan, docs_url="/api/docs" if DEBU
 # 静态文件
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
-# 注册路由
-from app.routes import auth, dashboard, channels, templates, notifiers, filters, history, logs, settings, admin, webhook, subscriptions
+# 注册旧页面路由
+from app.routes import (
+    auth, dashboard, channels, templates, notifiers, filters,
+    history, logs, settings, admin, webhook, subscriptions,
+)
 
 app.include_router(auth.router)
 app.include_router(dashboard.router)
@@ -127,15 +130,84 @@ app.include_router(history.router)
 app.include_router(logs.router)
 app.include_router(settings.router)
 app.include_router(admin.router)
-app.include_router(subscriptions.router)   # 加在 admin 后面
-app.include_router(webhook.router)  # /hook/{uuid} 无需登录
+app.include_router(subscriptions.router)
+app.include_router(webhook.router)
+
+# 注册 JSON API 路由
+from app.routes.api import auth as api_auth
+from app.routes.api import dashboard as api_dashboard
+from app.routes.api import notifiers as api_notifiers
+
+app.include_router(api_auth.router, prefix="/api")
+app.include_router(api_dashboard.router, prefix="/api")
+app.include_router(api_notifiers.router, prefix="/api")
 
 
-# 全局异常处理：未登录时跳转登录页
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException):
+    """
+    区分 API 和旧页面错误处理。
+
+    /api/*:
+    - 返回 JSON
+
+    旧页面:
+    - 保持原来的重定向体验
+    """
+    if request.url.path.startswith("/api/"):
+        return JSONResponse(
+            status_code=exc.status_code,
+            content={"detail": exc.detail},
+        )
+
+    if exc.status_code == 302:
+        return RedirectResponse(
+            exc.headers.get("Location", "/login"),
+            status_code=303,
+        )
+
+    if exc.status_code == 401:
+        return RedirectResponse("/login", status_code=303)
+
+    if exc.status_code == 403:
+        return RedirectResponse(
+            "/?msg=无权限&msg_type=error",
+            status_code=303,
+        )
+
+    return RedirectResponse(
+        "/?msg=发生错误&msg_type=error",
+        status_code=303,
+    )
+
+
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
+    """
+    全局兜底异常处理。
+
+    注意:
+    - API 返回 JSON
+    - 页面继续重定向
+    """
+    if request.url.path.startswith("/api/"):
+        if DEBUG:
+            raise exc
+        return JSONResponse(
+            status_code=500,
+            content={"detail": "Internal Server Error"},
+        )
+
     if hasattr(exc, "status_code") and exc.status_code == 302:
-        return RedirectResponse(exc.headers.get("Location", "/login"), status_code=303)
+        return RedirectResponse(
+            exc.headers.get("Location", "/login"),
+            status_code=303,
+        )
+
     if DEBUG:
         raise exc
-    return RedirectResponse("/?msg=发生错误&msg_type=error", status_code=303)
+
+    return RedirectResponse(
+        "/?msg=发生错误&msg_type=error",
+        status_code=303,
+    )

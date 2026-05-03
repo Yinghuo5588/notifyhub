@@ -1,0 +1,1 @@
+"""NotifyHub JSON API routes."""
