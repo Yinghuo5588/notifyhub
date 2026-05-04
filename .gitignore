@@ -3,3 +3,7 @@
 __pycache__/
 *.py[cod]
 *.pyc
+
+# Node_modules
+frontend/node_modules/
+
