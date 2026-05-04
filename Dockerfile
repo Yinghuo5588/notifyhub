@@ -27,7 +27,7 @@ RUN pip install --no-cache-dir -r requirements.txt -i https://pypi.tuna.tsinghua
 COPY . .
 
 # Copy Vue build output from frontend stage
-COPY --from=frontend-build /build/app/static/frontend /app/app/static/frontend
+COPY --from=frontend-build /build/app/static/frontend /app/static/frontend
 
 RUN mkdir -p /app/data
 
