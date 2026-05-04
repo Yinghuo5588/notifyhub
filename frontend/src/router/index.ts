@@ -30,7 +30,7 @@ const routes = [
     meta: { requiresAuth: true, title: '编辑频道' },
   },
 
-  // 模板，第五阶段迁移表单
+  // 模板，第五阶段迁移
   {
     path: '/templates',
     component: () => import('@/pages/templates/TemplateListPage.vue'),
@@ -43,12 +43,12 @@ const routes = [
   },
   {
     path: '/templates/new',
-    component: () => import('@/pages/PlaceholderPage.vue'),
+    component: () => import('@/pages/templates/TemplateFormPage.vue'),
     meta: { requiresAuth: true, title: '新建模板' },
   },
   {
     path: '/templates/:id/edit',
-    component: () => import('@/pages/PlaceholderPage.vue'),
+    component: () => import('@/pages/templates/TemplateFormPage.vue'),
     meta: { requiresAuth: true, title: '编辑模板' },
   },
 
@@ -76,25 +76,27 @@ const routes = [
     meta: { requiresAuth: true, title: '系统设置' },
   },
 
-  // 第四阶段尚未迁移
+  // 发送历史，第五阶段迁移
   {
     path: '/history',
-    component: () => import('@/pages/PlaceholderPage.vue'),
+    component: () => import('@/pages/history/HistoryListPage.vue'),
     meta: { requiresAuth: true, title: '发送历史' },
   },
   {
     path: '/history/:id',
-    component: () => import('@/pages/PlaceholderPage.vue'),
+    component: () => import('@/pages/history/HistoryDetailPage.vue'),
     meta: { requiresAuth: true, title: '发送历史详情' },
   },
+
+  // Webhook 日志，第五阶段迁移
   {
     path: '/logs',
-    component: () => import('@/pages/PlaceholderPage.vue'),
+    component: () => import('@/pages/logs/LogListPage.vue'),
     meta: { requiresAuth: true, title: '请求日志' },
   },
   {
     path: '/logs/:id',
-    component: () => import('@/pages/PlaceholderPage.vue'),
+    component: () => import('@/pages/logs/LogDetailPage.vue'),
     meta: { requiresAuth: true, title: '请求日志详情' },
   },
   {

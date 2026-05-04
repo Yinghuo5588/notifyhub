@@ -60,10 +60,10 @@ function remove(id: number) {
             共享模板
           </RouterLink>
 
-          <a href="/templates/new" class="btn btn-primary sm:w-auto">
+          <RouterLink to="/templates/new" class="btn btn-primary sm:w-auto">
             <Plus class="w-4 h-4" />
             新建模板
-          </a>
+          </RouterLink>
         </div>
       </div>
     </div>
@@ -124,10 +124,10 @@ function remove(id: number) {
               共享管理
             </a>
 
-            <a :href="`/templates/${item.id}/edit`" class="btn btn-secondary">
+            <RouterLink :to="`/templates/${item.id}/edit`" class="btn btn-secondary">
               <Edit class="w-4 h-4" />
               编辑
-            </a>
+            </RouterLink>
 
             <button
               type="button"
@@ -151,9 +151,9 @@ function remove(id: number) {
       <p class="page-subtitle">
         先做一个好模板，后面的通知才会看起来像作品。
       </p>
-      <a href="/templates/new" class="btn btn-primary sm:w-auto mt-3">
+      <RouterLink to="/templates/new" class="btn btn-primary sm:w-auto mt-3">
         创建第一个模板
-      </a>
+      </RouterLink>
     </div>
   </div>
 </template>

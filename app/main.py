@@ -141,6 +141,8 @@ from app.routes.api import (
     templates as api_templates,
     notifiers as api_notifiers,
     settings as api_settings,
+    history as api_history,
+    logs as api_logs,
 )
 
 app.include_router(api_auth.router, prefix="/api")
@@ -149,6 +151,8 @@ app.include_router(api_channels.router, prefix="/api")
 app.include_router(api_templates.router, prefix="/api")
 app.include_router(api_notifiers.router, prefix="/api")
 app.include_router(api_settings.router, prefix="/api")
+app.include_router(api_history.router, prefix="/api")
+app.include_router(api_logs.router, prefix="/api")
 
 
 @app.exception_handler(HTTPException)
