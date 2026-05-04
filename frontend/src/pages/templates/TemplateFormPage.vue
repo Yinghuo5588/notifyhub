@@ -378,7 +378,7 @@ function formatSampleJson() {
             语法速查
           </h3>
 
-          <div class="space-y-3 text-xs" style="color: var(--muted)">
+          <div class="space-y-3 text-xs" style="color: var(--muted)" v-pre>
             <div>
               <div class="font-medium" style="color: var(--text)">
                 变量输出
