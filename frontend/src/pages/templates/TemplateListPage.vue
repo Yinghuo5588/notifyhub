@@ -115,14 +115,14 @@ function remove(id: number) {
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:flex gap-2 shrink-0">
-            <a
+            <RouterLink
               v-if="item.is_shared && auth.user?.is_admin"
-              :href="`/admin/templates/${item.id}/share`"
+              :to="`/admin/templates/${item.id}/share`"
               class="btn btn-ghost"
             >
               <Share2 class="w-4 h-4" />
               共享管理
-            </a>
+            </RouterLink>
 
             <RouterLink :to="`/templates/${item.id}/edit`" class="btn btn-secondary">
               <Edit class="w-4 h-4" />

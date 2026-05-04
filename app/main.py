@@ -153,6 +153,8 @@ app.include_router(api_notifiers.router, prefix="/api")
 app.include_router(api_settings.router, prefix="/api")
 app.include_router(api_history.router, prefix="/api")
 app.include_router(api_logs.router, prefix="/api")
+app.include_router(api_subscriptions.router, prefix="/api")
+app.include_router(api_admin.router, prefix="/api")
 
 
 @app.exception_handler(HTTPException)

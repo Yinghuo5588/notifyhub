@@ -101,18 +101,33 @@ const routes = [
   },
   {
     path: '/subscriptions',
-    component: () => import('@/pages/PlaceholderPage.vue'),
+    component: () => import('@/pages/subscriptions/SubscriptionListPage.vue'),
     meta: { requiresAuth: true, title: '共享订阅' },
   },
   {
     path: '/subscriptions/:id/edit',
-    component: () => import('@/pages/PlaceholderPage.vue'),
+    component: () => import('@/pages/subscriptions/SubscriptionFormPage.vue'),
     meta: { requiresAuth: true, title: '订阅配置' },
   },
   {
     path: '/admin/users',
-    component: () => import('@/pages/PlaceholderPage.vue'),
+    component: () => import('@/pages/admin/UserListPage.vue'),
     meta: { requiresAuth: true, requiresAdmin: true, title: '用户管理' },
+  },
+  {
+    path: '/admin/channels/:id/share',
+    component: () => import('@/pages/admin/ShareChannelPage.vue'),
+    meta: { requiresAuth: true, requiresAdmin: true, title: '共享频道' },
+  },
+  {
+    path: '/admin/notifiers/:id/share',
+    component: () => import('@/pages/admin/ShareNotifierPage.vue'),
+    meta: { requiresAuth: true, requiresAdmin: true, title: '共享通知渠道' },
+  },
+  {
+    path: '/admin/templates/:id/share',
+    component: () => import('@/pages/admin/ShareTemplatePage.vue'),
+    meta: { requiresAuth: true, requiresAdmin: true, title: '共享模板' },
   },
 
   {
