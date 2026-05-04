@@ -6,7 +6,7 @@ const props = defineProps<{
   schema: Record<string, NotifierFieldSchema>
 }>()
 
-const model = defineModel<Record<string, unknown>>({
+const model = defineModel<Record<string, any>>({
   required: true,
 })
 

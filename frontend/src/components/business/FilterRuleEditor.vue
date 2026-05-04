@@ -1,10 +1,20 @@
 <script setup lang="ts">
 import { reactive, watch } from 'vue'
 import { Plus, Save, Trash2 } from 'lucide-vue-next'
-import type { FilterRule, FilterRulePayload } from '@/types/channel'
+import type { FilterRulePayload } from '@/types/channel'
+
+interface FilterRuleLike {
+  id: number
+  name: string
+  field_path: string
+  match_type: 'keyword' | 'regex'
+  pattern: string
+  mode: 'whitelist' | 'blacklist'
+  is_active: boolean
+}
 
 const props = defineProps<{
-  rules: FilterRule[]
+  rules: FilterRuleLike[]
   loading?: boolean
 }>()
 
