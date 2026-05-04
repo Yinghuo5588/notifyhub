@@ -291,7 +291,7 @@ function removeFilter(ruleId: number) {
 
           <FilterRuleEditor
             v-model:edit-id="filterEditId"
-            :rules="sub.filters || []"
+            :rules="(sub.filters || []) as any"
             :loading="busy"
             @create="payload => createFilterMutation.mutate(payload)"
             @update="updateFilter"

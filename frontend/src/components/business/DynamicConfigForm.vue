@@ -62,7 +62,7 @@ watch(
         </label>
 
         <textarea
-          v-model="model[key]"
+          v-model="(model[key] as any)"
           :required="field.required"
           :placeholder="field.placeholder"
           rows="4"
@@ -100,7 +100,7 @@ watch(
         </label>
 
         <textarea
-          v-model="model[key]"
+          v-model="(model[key] as any)"
           :required="field.required"
           :placeholder="field.placeholder || '{}'"
           rows="6"
