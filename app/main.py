@@ -134,13 +134,21 @@ app.include_router(subscriptions.router)
 app.include_router(webhook.router)
 
 # 注册 JSON API 路由
-from app.routes.api import auth as api_auth
-from app.routes.api import dashboard as api_dashboard
-from app.routes.api import notifiers as api_notifiers
+from app.routes.api import (
+    auth as api_auth,
+    dashboard as api_dashboard,
+    channels as api_channels,
+    templates as api_templates,
+    notifiers as api_notifiers,
+    settings as api_settings,
+)
 
 app.include_router(api_auth.router, prefix="/api")
 app.include_router(api_dashboard.router, prefix="/api")
+app.include_router(api_channels.router, prefix="/api")
+app.include_router(api_templates.router, prefix="/api")
 app.include_router(api_notifiers.router, prefix="/api")
+app.include_router(api_settings.router, prefix="/api")
 
 
 @app.exception_handler(HTTPException)

@@ -246,6 +246,26 @@ label {
   border-color: rgba(120,132,153,0.14);
 }
 
+.badge-purple {
+  background: rgba(140,110,250,0.12);
+  color: #7c3aed;
+  border-color: rgba(140,110,250,0.16);
+}
+
+html[data-theme="dark"] .badge-purple {
+  background: rgba(140,110,250,0.15);
+  color: #a78bfa;
+  border-color: rgba(140,110,250,0.20);
+}
+
+html[data-theme="dark"] .bg-white\/50 {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+html[data-theme="dark"] .hover\:bg-white\/30:hover {
+  background-color: rgba(255, 255, 255, 0.06);
+}
+
 .toast-enter {
   animation: toastIn 0.3s ease forwards;
 }

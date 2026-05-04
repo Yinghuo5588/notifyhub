@@ -73,7 +73,7 @@ async function logout() {
         :key="item.path"
         :to="item.path"
         class="flex items-center gap-3 mx-3 my-1 px-4 py-3 rounded-[18px] text-sm font-semibold transition no-underline"
-        :class="isActive(item.path) ? 'bg-white/50 dark:bg-white/10' : 'hover:bg-white/30'"
+        :class="isActive(item.path) ? 'bg-white/50' : 'hover:bg-white/30'"
         style="color: var(--text);"
       >
         <component :is="item.icon" class="w-5 h-5 text-brand" />
@@ -84,7 +84,7 @@ async function logout() {
         v-if="auth.user?.is_admin"
         to="/admin/users"
         class="flex items-center gap-3 mx-3 my-1 px-4 py-3 rounded-[18px] text-sm font-semibold transition no-underline hover:bg-white/30"
-        :class="route.path.startsWith('/admin') ? 'bg-white/50 dark:bg-white/10' : ''"
+        :class="route.path.startsWith('/admin') ? 'bg-white/50' : ''"
         style="color: var(--text);"
       >
         <Users class="w-5 h-5 text-brand" />
@@ -95,7 +95,7 @@ async function logout() {
         v-if="!auth.user?.is_admin"
         to="/subscriptions"
         class="flex items-center gap-3 mx-3 my-1 px-4 py-3 rounded-[18px] text-sm font-semibold transition no-underline hover:bg-white/30"
-        :class="route.path.startsWith('/subscriptions') ? 'bg-white/50 dark:bg-white/10' : ''"
+        :class="route.path.startsWith('/subscriptions') ? 'bg-white/50' : ''"
         style="color: var(--text);"
       >
         <Radio class="w-5 h-5 text-brand" />
