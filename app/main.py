@@ -1,23 +1,30 @@
-"""NotifyHub 应用入口"""
+"""NotifyHub 应用入口 - Vue SPA 生产入口版"""
 import json
 from contextlib import asynccontextmanager
+
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import RedirectResponse, JSONResponse
+from fastapi.responses import RedirectResponse, JSONResponse, FileResponse
 from sqlalchemy import select
 
-from app.config import STATIC_DIR, DEBUG, ADMIN_USERNAME, ADMIN_PASSWORD
+from app.config import (
+    STATIC_DIR,
+    FRONTEND_DIR,
+    DEBUG,
+    ADMIN_USERNAME,
+    ADMIN_PASSWORD,
+)
 from app.core.database import init_db, async_session_factory
 from app.core.security import hash_password
 from app.models.models import User, NotificationTemplate
 
 
 async def seed_admin():
-    """首次启动：创建管理员账号和示例模板"""
+    """首次启动: 创建管理员账号和示例模板"""
     async with async_session_factory() as db:
         result = await db.execute(select(User).limit(1))
         if result.scalar_one_or_none() is not None:
-            return  # 已有用户，跳过
+            return
 
         admin = User(
             username=ADMIN_USERNAME,
@@ -28,7 +35,6 @@ async def seed_admin():
         db.add(admin)
         await db.flush()
 
-        # 创建示例模板
         samples = [
             NotificationTemplate(
                 user_id=admin.id,
@@ -43,7 +49,13 @@ async def seed_admin():
                     "时间: {{ _timestamp }}"
                 ),
                 body_format="text",
-                sample_data=json.dumps({"title": "测试标题", "message": "这是一条测试消息"}, ensure_ascii=False),
+                sample_data=json.dumps(
+                    {
+                        "title": "测试标题",
+                        "message": "这是一条测试消息",
+                    },
+                    ensure_ascii=False,
+                ),
             ),
             NotificationTemplate(
                 user_id=admin.id,
@@ -65,14 +77,20 @@ async def seed_admin():
                     "时间: {{ _timestamp }}"
                 ),
                 body_format="text",
-                sample_data=json.dumps({
-                    "Event": "library.new",
-                    "Item": {
-                        "Name": "第1集", "SeriesName": "示例剧集",
-                        "Type": "Episode", "ParentIndexNumber": 1,
-                        "IndexNumber": 1, "Overview": "这是剧情简介"
-                    }
-                }, ensure_ascii=False),
+                sample_data=json.dumps(
+                    {
+                        "Event": "library.new",
+                        "Item": {
+                            "Name": "第1集",
+                            "SeriesName": "示例剧集",
+                            "Type": "Episode",
+                            "ParentIndexNumber": 1,
+                            "IndexNumber": 1,
+                            "Overview": "这是剧情简介",
+                        },
+                    },
+                    ensure_ascii=False,
+                ),
             ),
             NotificationTemplate(
                 user_id=admin.id,
@@ -87,16 +105,23 @@ async def seed_admin():
                     "时间: {{ _timestamp }}"
                 ),
                 body_format="text",
-                sample_data=json.dumps({
-                    "name": "签到任务", "status": "完成", "message": "签到成功，获得10积分"
-                }, ensure_ascii=False),
+                sample_data=json.dumps(
+                    {
+                        "name": "签到任务",
+                        "status": "完成",
+                        "message": "签到成功,获得10积分",
+                    },
+                    ensure_ascii=False,
+                ),
             ),
         ]
-        for s in samples:
-            db.add(s)
+
+        for item in samples:
+            db.add(item)
+
         await db.commit()
         print(f"✅ 管理员账号已创建: {ADMIN_USERNAME} / {ADMIN_PASSWORD}")
-        print("⚠️  请登录后立即修改默认密码！")
+        print("⚠️  请登录后立即修改默认密码!")
 
 
 @asynccontextmanager
@@ -109,31 +134,34 @@ async def lifespan(app: FastAPI):
     print("👋 NotifyHub 已停止")
 
 
-app = FastAPI(title="NotifyHub", lifespan=lifespan, docs_url="/api/docs" if DEBUG else None)
-
-# 静态文件
-app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
-
-# 注册旧页面路由
-from app.routes import (
-    auth, dashboard, channels, templates, notifiers, filters,
-    history, logs, settings, admin, webhook, subscriptions,
+app = FastAPI(
+    title="NotifyHub",
+    lifespan=lifespan,
+    docs_url="/api/docs" if DEBUG else None,
+    redoc_url="/api/redoc" if DEBUG else None,
+    openapi_url="/api/openapi.json" if DEBUG else None,
 )
 
-app.include_router(auth.router)
-app.include_router(dashboard.router)
-app.include_router(channels.router)
-app.include_router(templates.router)
-app.include_router(notifiers.router)
-app.include_router(filters.router)
-app.include_router(history.router)
-app.include_router(logs.router)
-app.include_router(settings.router)
-app.include_router(admin.router)
-app.include_router(subscriptions.router)
-app.include_router(webhook.router)
 
-# 注册 JSON API 路由
+# ------------------------------------------------------------
+# 静态资源
+# ------------------------------------------------------------
+
+app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
+
+assets_dir = FRONTEND_DIR / "assets"
+if assets_dir.exists():
+    app.mount(
+        "/assets",
+        StaticFiles(directory=str(assets_dir)),
+        name="frontend-assets",
+    )
+
+
+# ------------------------------------------------------------
+# 注册 API 路由
+# ------------------------------------------------------------
+
 from app.routes.api import (
     auth as api_auth,
     dashboard as api_dashboard,
@@ -143,6 +171,8 @@ from app.routes.api import (
     settings as api_settings,
     history as api_history,
     logs as api_logs,
+    subscriptions as api_subscriptions,
+    admin as api_admin,
 )
 
 app.include_router(api_auth.router, prefix="/api")
@@ -157,16 +187,24 @@ app.include_router(api_subscriptions.router, prefix="/api")
 app.include_router(api_admin.router, prefix="/api")
 
 
+# ------------------------------------------------------------
+# Webhook 路由必须保留
+# ------------------------------------------------------------
+
+from app.routes import webhook
+
+app.include_router(webhook.router)
+
+
+# ------------------------------------------------------------
+# 异常处理
+# ------------------------------------------------------------
+
 @app.exception_handler(HTTPException)
 async def http_exception_handler(request: Request, exc: HTTPException):
     """
-    区分 API 和旧页面错误处理。
-
-    /api/*:
-    - 返回 JSON
-
-    旧页面:
-    - 保持原来的重定向体验
+    API 返回 JSON。
+    SPA 页面请求交给 Vue 自己处理。
     """
     if request.url.path.startswith("/api/"):
         return JSONResponse(
@@ -174,24 +212,20 @@ async def http_exception_handler(request: Request, exc: HTTPException):
             content={"detail": exc.detail},
         )
 
-    if exc.status_code == 302:
-        return RedirectResponse(
-            exc.headers.get("Location", "/login"),
-            status_code=303,
+    if request.url.path.startswith("/hook/"):
+        return JSONResponse(
+            status_code=exc.status_code,
+            content={"detail": exc.detail},
         )
 
-    if exc.status_code == 401:
-        return RedirectResponse("/login", status_code=303)
+    # 非 API 的异常，生产入口下回到 SPA
+    index_file = FRONTEND_DIR / "index.html"
+    if index_file.exists():
+        return FileResponse(str(index_file))
 
-    if exc.status_code == 403:
-        return RedirectResponse(
-            "/?msg=无权限&msg_type=error",
-            status_code=303,
-        )
-
-    return RedirectResponse(
-        "/?msg=发生错误&msg_type=error",
-        status_code=303,
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"detail": exc.detail},
     )
 
 
@@ -199,29 +233,71 @@ async def http_exception_handler(request: Request, exc: HTTPException):
 async def global_exception_handler(request: Request, exc: Exception):
     """
     全局兜底异常处理。
-
-    注意:
-    - API 返回 JSON
-    - 页面继续重定向
+    API 返回 JSON。
+    非 API 在生产入口下返回 SPA。
     """
+    if DEBUG:
+        raise exc
+
     if request.url.path.startswith("/api/"):
-        if DEBUG:
-            raise exc
         return JSONResponse(
             status_code=500,
             content={"detail": "Internal Server Error"},
         )
 
-    if hasattr(exc, "status_code") and exc.status_code == 302:
-        return RedirectResponse(
-            exc.headers.get("Location", "/login"),
-            status_code=303,
+    if request.url.path.startswith("/hook/"):
+        return JSONResponse(
+            status_code=500,
+            content={"detail": "Internal Server Error"},
         )
 
-    if DEBUG:
-        raise exc
+    index_file = FRONTEND_DIR / "index.html"
+    if index_file.exists():
+        return FileResponse(str(index_file))
 
-    return RedirectResponse(
-        "/?msg=发生错误&msg_type=error",
-        status_code=303,
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "Internal Server Error"},
     )
+
+
+# ------------------------------------------------------------
+# Vue SPA 入口
+# ------------------------------------------------------------
+
+@app.get("/{full_path:path}", include_in_schema=False)
+async def serve_spa(full_path: str):
+    """
+    Vue SPA catch-all。
+
+    注意：
+    - /api/* 不返回 index.html
+    - /hook/* 不返回 index.html
+    - /static/* 不返回 index.html
+    - /assets/* 由 StaticFiles 处理
+    """
+    if full_path.startswith("api"):
+        return JSONResponse({"detail": "Not Found"}, status_code=404)
+
+    if full_path.startswith("hook"):
+        return JSONResponse({"detail": "Not Found"}, status_code=404)
+
+    if full_path.startswith("static"):
+        return JSONResponse({"detail": "Not Found"}, status_code=404)
+
+    if full_path.startswith("assets"):
+        return JSONResponse({"detail": "Not Found"}, status_code=404)
+
+    index_file = FRONTEND_DIR / "index.html"
+    if not index_file.exists():
+        return JSONResponse(
+            {
+                "detail": (
+                    "Frontend not built. Please run: "
+                    "cd frontend && npm install && npm run build"
+                )
+            },
+            status_code=500,
+        )
+
+    return FileResponse(str(index_file))

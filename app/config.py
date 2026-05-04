@@ -34,6 +34,7 @@ LOG_RETENTION_DAYS = int(os.getenv("LOG_RETENTION_DAYS", "30"))
 # 模板和静态文件路径
 TEMPLATES_DIR = BASE_DIR / "templates"
 STATIC_DIR = BASE_DIR / "static"
+FRONTEND_DIR = STATIC_DIR / "frontend"
 
 # 确保data目录存在
 (BASE_DIR / "data").mkdir(exist_ok=True)

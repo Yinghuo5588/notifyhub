@@ -17,4 +17,8 @@ export default defineConfig({
       '/static': 'http://127.0.0.1:9800',
     },
   },
+  build: {
+    outDir: '../app/static/frontend',
+    emptyOutDir: true,
+  },
 })

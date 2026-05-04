@@ -1,9 +1,37 @@
--e 
-# Python bytecode
+# Python
 __pycache__/
 *.py[cod]
-*.pyc
+*.pyo
+*.pyd
+.Python
+.venv/
+venv/
+env/
 
-# Node_modules
+# Env
+.env
+
+# Database / runtime data
+data/
+*.db
+*.sqlite
+*.sqlite3
+
+# Node
 frontend/node_modules/
+frontend/dist/
 
+# Build output
+app/static/frontend/
+
+# IDE
+.vscode/
+.idea/
+.DS_Store
+
+# Logs
+*.log
+
+# Legacy (归档的旧 Jinja2 页面，不参与构建)
+templates_legacy/
+app/routes_legacy/
