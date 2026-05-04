@@ -76,10 +76,10 @@ function test(id: number) {
           </p>
         </div>
 
-        <a href="/notifiers/new" class="btn btn-primary sm:w-auto">
+        <RouterLink to="/notifiers/new" class="btn btn-primary sm:w-auto">
           <Plus class="w-4 h-4" />
           新建渠道
-        </a>
+        </RouterLink>
       </div>
     </div>
 
@@ -131,14 +131,14 @@ function test(id: number) {
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:flex gap-2 shrink-0">
-            <a
+            <RouterLink
               v-if="item.is_shared && auth.user?.is_admin"
-              :href="`/admin/notifiers/${item.id}/share`"
+              :to="`/admin/notifiers/${item.id}/share`"
               class="btn btn-ghost"
             >
               <Share2 class="w-4 h-4" />
               共享管理
-            </a>
+            </RouterLink>
 
             <button
               type="button"
@@ -150,10 +150,10 @@ function test(id: number) {
               测试
             </button>
 
-            <a :href="`/notifiers/${item.id}/edit`" class="btn btn-secondary">
+            <RouterLink :to="`/notifiers/${item.id}/edit`" class="btn btn-secondary">
               <Edit class="w-4 h-4" />
               编辑
-            </a>
+            </RouterLink>
 
             <button
               type="button"
@@ -180,9 +180,9 @@ function test(id: number) {
         先配置一个发送出口，不然消息只能在系统里原地打转。
       </p>
 
-      <a href="/notifiers/new" class="btn btn-primary sm:w-auto mt-3">
+      <RouterLink to="/notifiers/new" class="btn btn-primary sm:w-auto mt-3">
         创建第一个渠道
-      </a>
+      </RouterLink>
     </div>
   </div>
 </template>

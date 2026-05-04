@@ -63,10 +63,10 @@ function remove(id: number) {
           </p>
         </div>
 
-        <a href="/channels/new" class="btn btn-primary sm:w-auto">
+        <RouterLink to="/channels/new" class="btn btn-primary sm:w-auto">
           <Plus class="w-4 h-4" />
           新建频道
-        </a>
+        </RouterLink>
       </div>
     </div>
 
@@ -158,19 +158,19 @@ function remove(id: number) {
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:flex gap-2 shrink-0">
-              <a
+              <RouterLink
                 v-if="ch.is_shared && auth.user?.is_admin"
-                :href="`/admin/channels/${ch.id}/share`"
+                :to="`/admin/channels/${ch.id}/share`"
                 class="btn btn-ghost"
               >
                 <Share2 class="w-4 h-4" />
                 共享管理
-              </a>
+              </RouterLink>
 
-              <a :href="`/channels/${ch.id}/edit`" class="btn btn-secondary">
+              <RouterLink :to="`/channels/${ch.id}/edit`" class="btn btn-secondary">
                 <Edit class="w-4 h-4" />
                 编辑
-              </a>
+              </RouterLink>
 
               <button
                 type="button"
@@ -195,9 +195,9 @@ function remove(id: number) {
       <p class="page-subtitle">
         先建一个 Webhook 入口，让消息有地方落地。
       </p>
-      <a href="/channels/new" class="btn btn-primary sm:w-auto mt-3">
+      <RouterLink to="/channels/new" class="btn btn-primary sm:w-auto mt-3">
         创建第一个频道
-      </a>
+      </RouterLink>
     </div>
   </div>
 </template>

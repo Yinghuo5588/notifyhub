@@ -12,11 +12,25 @@ const routes = [
     component: () => import('@/pages/dashboard/DashboardPage.vue'),
     meta: { requiresAuth: true },
   },
+
+  // 频道
   {
     path: '/channels',
     component: () => import('@/pages/channels/ChannelListPage.vue'),
     meta: { requiresAuth: true, title: 'Webhook 频道' },
   },
+  {
+    path: '/channels/new',
+    component: () => import('@/pages/channels/ChannelFormPage.vue'),
+    meta: { requiresAuth: true, title: '新建频道' },
+  },
+  {
+    path: '/channels/:id/edit',
+    component: () => import('@/pages/channels/ChannelFormPage.vue'),
+    meta: { requiresAuth: true, title: '编辑频道' },
+  },
+
+  // 模板，第五阶段迁移表单
   {
     path: '/templates',
     component: () => import('@/pages/templates/TemplateListPage.vue'),
@@ -28,17 +42,41 @@ const routes = [
     meta: { requiresAuth: true, title: '共享模板' },
   },
   {
+    path: '/templates/new',
+    component: () => import('@/pages/PlaceholderPage.vue'),
+    meta: { requiresAuth: true, title: '新建模板' },
+  },
+  {
+    path: '/templates/:id/edit',
+    component: () => import('@/pages/PlaceholderPage.vue'),
+    meta: { requiresAuth: true, title: '编辑模板' },
+  },
+
+  // 通知渠道
+  {
     path: '/notifiers',
     component: () => import('@/pages/notifiers/NotifierListPage.vue'),
     meta: { requiresAuth: true, title: '通知渠道' },
   },
+  {
+    path: '/notifiers/new',
+    component: () => import('@/pages/notifiers/NotifierFormPage.vue'),
+    meta: { requiresAuth: true, title: '新建通知渠道' },
+  },
+  {
+    path: '/notifiers/:id/edit',
+    component: () => import('@/pages/notifiers/NotifierFormPage.vue'),
+    meta: { requiresAuth: true, title: '编辑通知渠道' },
+  },
+
+  // 设置
   {
     path: '/settings',
     component: () => import('@/pages/settings/SettingsPage.vue'),
     meta: { requiresAuth: true, title: '系统设置' },
   },
 
-  // 第三阶段尚未迁移的复杂页面，继续占位
+  // 第四阶段尚未迁移
   {
     path: '/history',
     component: () => import('@/pages/PlaceholderPage.vue'),
@@ -65,53 +103,14 @@ const routes = [
     meta: { requiresAuth: true, title: '共享订阅' },
   },
   {
+    path: '/subscriptions/:id/edit',
+    component: () => import('@/pages/PlaceholderPage.vue'),
+    meta: { requiresAuth: true, title: '订阅配置' },
+  },
+  {
     path: '/admin/users',
     component: () => import('@/pages/PlaceholderPage.vue'),
     meta: { requiresAuth: true, requiresAdmin: true, title: '用户管理' },
-  },
-
-  // 新建/编辑复杂表单暂时走旧页面
-  {
-    path: '/channels/new',
-    beforeEnter() {
-      window.location.href = '/channels/new'
-      return false
-    },
-  },
-  {
-    path: '/channels/:id/edit',
-    beforeEnter(to) {
-      window.location.href = `/channels/${to.params.id}/edit`
-      return false
-    },
-  },
-  {
-    path: '/templates/new',
-    beforeEnter() {
-      window.location.href = '/templates/new'
-      return false
-    },
-  },
-  {
-    path: '/templates/:id/edit',
-    beforeEnter(to) {
-      window.location.href = `/templates/${to.params.id}/edit`
-      return false
-    },
-  },
-  {
-    path: '/notifiers/new',
-    beforeEnter() {
-      window.location.href = '/notifiers/new'
-      return false
-    },
-  },
-  {
-    path: '/notifiers/:id/edit',
-    beforeEnter(to) {
-      window.location.href = `/notifiers/${to.params.id}/edit`
-      return false
-    },
   },
 
   {

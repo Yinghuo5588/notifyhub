@@ -33,6 +33,20 @@ export interface NotifierConfig {
   config?: Record<string, unknown>
   is_active: boolean
   is_shared: boolean
-  created_at?: string
-  updated_at?: string
+  created_at?: string | null
+  updated_at?: string | null
+}
+
+export interface NotifierCreatePayload {
+  name: string
+  notifier_type: string
+  config: Record<string, unknown>
+  is_shared: boolean
+}
+
+export interface NotifierUpdatePayload {
+  name: string
+  config: Record<string, unknown>
+  is_active: boolean
+  is_shared: boolean
 }
