@@ -86,7 +86,7 @@ function submit() {
   reset()
 }
 
-function edit(rule: FilterRule) {
+function edit(rule: FilterRuleLike) {
   editId.value = rule.id
 }
 
