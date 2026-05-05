@@ -21,22 +21,22 @@
 }
 
 html[data-theme="dark"] {
-  --bg: #0f1115;
-  --bg-secondary: #171a20;
-  --panel: rgba(28, 32, 40, 0.68);
-  --panel-strong: rgba(30, 34, 42, 0.84);
+  --bg: #0b0f17;
+  --bg-secondary: #111827;
+  --panel: rgba(22, 27, 36, 0.72);
+  --panel-strong: rgba(28, 34, 45, 0.9);
   --panel-border: rgba(255, 255, 255, 0.10);
   --text: #f5f7fb;
-  --text-soft: #dde5f0;
-  --muted: #99a7bd;
+  --text-soft: #dbe4f0;
+  --muted: #9ca9bd;
   --brand: #5ac8fa;
   --brand-strong: #0a84ff;
   --brand-2: #64d2ff;
   --success: #32d74b;
   --danger: #ff6482;
   --warning: #ff9f0a;
-  --shadow: 0 22px 60px rgba(0, 0, 0, 0.34);
-  --shadow-soft: 0 10px 28px rgba(0, 0, 0, 0.24);
-  --input-bg: rgba(255, 255, 255, 0.05);
+  --shadow: 0 22px 60px rgba(0, 0, 0, 0.38);
+  --shadow-soft: 0 10px 28px rgba(0, 0, 0, 0.28);
+  --input-bg: rgba(255, 255, 255, 0.055);
   --line: rgba(255, 255, 255, 0.10);
 }

@@ -120,7 +120,7 @@ function trendMax(success: number[], failed: number[]) {
 
     <template v-else-if="data">
       <!-- 顶部核心统计 -->
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4">
         <div class="stat-card">
           <Webhook class="w-8 h-8 text-brand mb-3" />
           <div class="stat-value">
@@ -171,7 +171,7 @@ function trendMax(success: number[], failed: number[]) {
       </div>
 
       <!-- 今日小统计 -->
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+      <div class="grid grid-cols-3 gap-3 sm:gap-4 mb-4">
         <div class="form-card text-center">
           <Radio class="w-6 h-6 mx-auto text-brand mb-2" />
           <div class="text-xl font-bold">

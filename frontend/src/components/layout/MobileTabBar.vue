@@ -55,7 +55,7 @@ function isMoreActive() {
     <button
       type="button"
       class="ios-tabbar__item"
-      :class="{ active: isMoreActive() }"
+      :class="{ active: isMoreActive() || ui.mobileMoreOpen }"
       @click="ui.toggleMobileMore()"
     >
       <MoreHorizontal class="w-4 h-4" />

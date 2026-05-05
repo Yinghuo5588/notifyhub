@@ -50,7 +50,7 @@ function toggleTheme() {
 
   <div
     v-if="ui.mobileMoreOpen"
-    class="fixed left-1/2 bottom-[86px] z-[90] w-[min(92vw,420px)] -translate-x-1/2 rounded-[28px] p-4 glass-panel lg:hidden"
+    class="mobile-sheet-enter fixed left-1/2 bottom-[86px] z-[90] w-[min(92vw,420px)] -translate-x-1/2 rounded-[28px] p-4 glass-panel lg:hidden"
   >
     <div class="w-11 h-1.5 rounded-full mx-auto mb-4 bg-slate-400/40" />
 
@@ -117,17 +117,33 @@ function toggleTheme() {
   display: flex;
   align-items: center;
   gap: 0.65rem;
-  padding: 0.82rem 0.88rem;
-  border-radius: 20px;
+  padding: 0.9rem 0.9rem;
+  border-radius: 22px;
   color: var(--text);
   text-decoration: none;
-  background: rgba(255,255,255,0.42);
-  border: 1px solid rgba(255,255,255,0.46);
+  background: rgba(255,255,255,0.52);
+  border: 1px solid rgba(255,255,255,0.58);
   text-align: left;
+  font-weight: 650;
+  transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.sheet-btn:active {
+  transform: scale(0.985);
+}
+
+.sheet-btn:hover {
+  background: rgba(255,255,255,0.68);
+  border-color: rgba(10,132,255,0.18);
 }
 
 html[data-theme="dark"] .sheet-btn {
-  background: rgba(255,255,255,0.05);
-  border-color: rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(255,255,255,0.10);
+}
+
+html[data-theme="dark"] .sheet-btn:hover {
+  background: rgba(255,255,255,0.09);
 }
 </style>

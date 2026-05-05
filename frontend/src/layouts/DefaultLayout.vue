@@ -5,7 +5,7 @@ import MobileMoreSheet from '@/components/layout/MobileMoreSheet.vue'
 </script>
 
 <template>
-  <div class="relative min-h-screen">
+  <div class="relative min-h-screen overflow-x-hidden">
     <div class="flex min-h-screen">
       <Sidebar />
 
