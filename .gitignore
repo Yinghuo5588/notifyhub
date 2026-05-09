@@ -35,3 +35,17 @@ app/static/frontend/
 # Legacy (归档的旧 Jinja2 页面，不参与构建)
 templates_legacy/
 app/routes_legacy/
+# OpenClaw personal workspace files (NEVER commit these to project repos)
+memory/
+MEMORY.md
+HEARTBEAT.md
+BOOTSTRAP.md
+TOOLS.md
+AGENTS.md
+SOUL.md
+USER.md
+IDENTITY.md
+SELF_IMPROVEMENT_REMINDER.md
+.learnings/
+*.learnings
+heartbeat-state.json
